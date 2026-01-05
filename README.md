@@ -4,15 +4,14 @@ This project explores Speech Emotion Recognition (SER) for the Italian language 
 
 A key focus of this work is the analysis of model generalization across different audio corpora, a common challenge in audio processing known as **Domain Shift**.
 
-## 📋 Table of Contents
+## Table of Contents
 1.  [Methodology](#-methodology)
 2.  [Experimental Protocol](#-experimental-protocol)
-3.  [How to Run](#-how-to-run)
-4.  [Results & Analysis](#-results--analysis)
-5.  [Understanding the Metrics](#-understanding-the-metrics)
-6.  [Conclusion](#-conclusion)
+3.  [Results & Analysis](#-results--analysis)
+4.  [Understanding the Metrics](#-understanding-the-metrics)
+5.  [Conclusion](#-conclusion)
 
-## 🔬 Methodology
+##  Methodology
 
 ### Datasets
 Two distinct Italian SER datasets were used:
@@ -34,7 +33,7 @@ We compared two different machine learning models:
 1.  **SVM (Support Vector Machine)**: A powerful and robust classical model that works well in high-dimensional feature spaces. We used an RBF kernel.
 2.  **MLP (Multi-Layer Perceptron)**: A feed-forward Neural Network with two hidden layers (256 and 128 neurons). This model can capture complex, non-linear relationships between features.
 
-## 🧪 Experimental Protocol
+##  Experimental Protocol
 
 To fully evaluate the models' performance and generalization capabilities, we conducted three main experiments. All intra-dataset and combined scenarios were evaluated using a **5-Fold Stratified Cross-Validation**.
 
@@ -52,28 +51,8 @@ To fully evaluate the models' performance and generalization capabilities, we co
     -   Train on a combined dataset of both AI4SER and EMOZIONALMENTE.
     -   *Purpose*: To build a more robust and general-purpose model by exposing it to a wider variety of data.
 
-## 🚀 How to Run
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/Francesco-Mon/Italian-SER-ML-Project.git
-    cd Italian-SER-ML-Project
-    ```
-
-2.  **Set up the environment:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *(Note: You may need to create a `requirements.txt` file from your local environment using `pip freeze > requirements.txt`)*
-
-3.  **Place the data:**
-    -   Download the `0000.parquet` and `0001.parquet` files for AI4SER and place them in the project's root directory.
-    -   Download `emozionalmente.zip` and place it in the project's root directory.
-
-4.  **Run the notebook:**
-    -   Open and run the `Emotion_Recognition_Italian.ipynb` Jupyter Notebook. The cells are designed to be executed in sequence.
-
-## 📊 Results & Analysis
+##  Results & Analysis
 
 The experiments yielded clear and insightful results:
 
@@ -87,7 +66,7 @@ The experiments yielded clear and insightful results:
 
 5.  **Combined training is the most effective strategy**: By training on a mix of both datasets, the model's accuracy on a cross-validation test reached a robust **~65-70%**. This proves that data diversity is key to building models that can perform well in more realistic scenarios.
 
-## 📈 Understanding the Metrics
+##  Understanding the Metrics
 
 To evaluate the models, we used the following standard classification metrics:
 
@@ -109,7 +88,7 @@ To evaluate the models, we used the following standard classification metrics:
 
 -   **Confusion Matrix**: A table that visualizes model performance. The diagonal shows correct predictions, while off-diagonal cells show where the model made mistakes (e.g., how many times "Sadness" was misclassified as "Neutral").
 
-## ✨ Conclusion
+##  Conclusion
 
 This project successfully implemented and evaluated a pipeline for Speech Emotion Recognition in Italian.
 
