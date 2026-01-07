@@ -14,12 +14,17 @@ A key focus of this work is the analysis of model generalization across differen
 ##  Methodology
 
 ### Datasets
-Two distinct Italian SER datasets were used:
+We utilized two distinct Italian audio corpora, harmonized to a common intersection of labels.
 
-1.  **AI4SER**: A high-quality, acted dataset based on the EMOVO corpus. It features multiple speakers reciting sentences with clear emotional intent in a studio environment. The useful subset contains **2,500 audio files**, balanced across the 5 target emotions.
-2.  **EMOZIONALMENTE**: A more varied and challenging dataset containing **~4,900 audio files**. The recordings are more spontaneous and exhibit greater acoustic diversity.
+1.  **AI4SER** (Acted/Studio):
+    *   A high-quality, acted dataset based on the EMOVO corpus.
+    *   **~2,500 files** selected (Filtered out 'Disgust' and 'Surprise').
+2.  **EMOZIONALMENTE** (Varied/Spontaneous):
+    *   Diverse acoustic environments and speakers.
+    *   **~4,900 files** used.
+    *   *Data Cleaning:* We identified a labeling inconsistency in the metadata (`neutrality` vs `neutral`). By fixing this mapping, we successfully retrieved the Neutral class samples, solving the initial class imbalance.
 
-**Data Harmonization**: To ensure compatibility, we worked with the intersection of emotion labels present in both datasets. The classes *Disgust* and *Surprise* were filtered out from AI4SER. The `neutrality` label in EMOZIONALMENTE's metadata was mapped to the *Neutral* class.
+**Data Harmonization**: To ensure compatibility, we worked with the intersection of emotion labels present in both datasets (Anger, Joy, Neutral, Sadness, Fear).
 
 ### Feature Extraction
 We compared two sets of acoustic features to represent the audio signals:
@@ -31,7 +36,7 @@ We compared two sets of acoustic features to represent the audio signals:
 We compared two different machine learning models:
 
 1.  **SVM (Support Vector Machine)**: A powerful and robust classical model that works well in high-dimensional feature spaces. We used an RBF kernel.
-2.  **MLP (Multi-Layer Perceptron)**: A feed-forward Neural Network with two hidden layers (256 and 128 neurons). This model can capture complex, non-linear relationships between features.
+2.  **MLP (Multi-Layer Perceptron)**: A feed-forward Neural Network with two hidden layers (256 and 128 neurons). This model can capture complex, non-linear relationships between features and scales better with larger datasets.
 
 ##  Experimental Protocol
 
@@ -51,42 +56,33 @@ To fully evaluate the models' performance and generalization capabilities, we co
     -   Train on a combined dataset of both AI4SER and EMOZIONALMENTE.
     -   *Purpose*: To build a more robust and general-purpose model by exposing it to a wider variety of data.
 
-
 ##  Results & Analysis
 
-The experiments yielded clear and insightful results:
+The experiments yielded clear and insightful results. Below is the summary of the best performance metrics obtained (using **eGeMAPS** features).
 
-1.  **eGeMAPS is superior to MFCCs**: Across all scenarios, the eGeMAPS feature set provided a significant performance boost (+5-10% in accuracy) over MFCCs. This confirms that prosodic features are more informative for emotion recognition than purely spectral ones.
+| Scenario | Training Set | Test Set | Best Model | Accuracy | Weighted F1 |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1. Intra-Dataset** | AI4SER | AI4SER | SVM | **0.72** | 0.72 |
+| **1. Intra-Dataset** | EMOZIONALMENTE | EMOZIONALMENTE | SVM | **0.56** | 0.56 |
+| **2. Cross-Dataset** | AI4SER | EMOZIONALMENTE | SVM | **0.29** | 0.27 |
+| **2. Cross-Dataset** | EMOZIONALMENTE | AI4SER | SVM | **0.30** | 0.25 |
+| **3. Combined** | **AI4SER + EMOZ** | **AI4SER** (Subset) | **MLP** | **0.85** | **0.85** |
+| **3. Combined** | **AI4SER + EMOZ** | **EMOZ** (Subset) | **MLP** | **0.74** | **0.74** |
 
-2.  **SVM is a strong baseline, MLP shows potential**: SVM provided robust and consistent results. The MLP Neural Network achieved slightly better performance in the "Combined" scenario, indicating its ability to leverage larger, more complex datasets.
-
-3.  **Intra-Dataset performance is high**: On the clean, acted AI4SER dataset, models reached **~75% accuracy**. On the more complex EMOZIONALMENTE dataset, accuracy was around **~60%**, highlighting its challenging nature.
-
-4.  **Cross-Dataset performance reveals a critical weakness**: When training on one dataset and testing on the other, accuracy plummeted to **~30-35%**. This is a classic example of **Domain Shift**, where the model overfits to the acoustic characteristics (microphone, room noise) of the training data and fails to generalize.
-
-5.  **Combined training is the most effective strategy**: By training on a mix of both datasets, the model's accuracy on a cross-validation test reached a robust **~65-70%**. This proves that data diversity is key to building models that can perform well in more realistic scenarios.
+**Key Findings:**
+1.  **Feature Superiority**: **eGeMAPS** consistently outperformed MFCCs across all tests, proving that prosodic features are essential for emotion recognition.
+2.  **Domain Shift**: The drastic drop in accuracy in Scenario 2 (~30%) confirms that models trained on a single corpus overfit to the recording environment (microphone, room acoustics) rather than learning universal emotion features.
+3.  **The Solution**: The **Combined Training** strategy (Scenario 3) using a Neural Network (MLP) was the only effective method to mitigate domain shift, boosting accuracy to **85%** on AI4SER and **74%** on EMOZIONALMENTE.
 
 ##  Understanding the Metrics
 
 To evaluate the models, we used the following standard classification metrics:
 
 -   **Accuracy**: The most straightforward metric. It measures the overall percentage of correct predictions.
-    -   *Formula*: `(Correct Predictions) / (Total Predictions)`
-    -   *Use Case*: Good for a general overview, but can be misleading on imbalanced datasets.
-
 -   **Precision**: Measures the model's exactness. Of all the times the model predicted a certain emotion, how many times was it right?
-    -   *Formula*: `(True Positives) / (True Positives + False Positives)`
-    -   *Use Case*: Important when the cost of a false positive is high. For example, you don't want to incorrectly flag a neutral call center conversation as "Anger".
-
 -   **Recall (Sensitivity)**: Measures the model's completeness. Of all the actual examples of an emotion, how many did the model correctly identify?
-    -   *Formula*: `(True Positives) / (True Positives + False Negatives)`
-    -   *Use Case*: Important when the cost of a false negative is high. For example, you don't want to miss detecting a "Sadness" cue in a mental health monitoring application.
-
 -   **F1-Score**: The harmonic mean of Precision and Recall. It provides a single score that balances both concerns.
-    -   *Formula*: `2 * (Precision * Recall) / (Precision + Recall)`
-    -   *Use Case*: The best metric for evaluating a model's performance on a per-class basis, especially when classes are imbalanced.
-
--   **Confusion Matrix**: A table that visualizes model performance. The diagonal shows correct predictions, while off-diagonal cells show where the model made mistakes (e.g., how many times "Sadness" was misclassified as "Neutral").
+-   **Confusion Matrix**: A table that visualizes model performance. The diagonal shows correct predictions, while off-diagonal cells show where the model made mistakes.
 
 ##  Conclusion
 
